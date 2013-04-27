@@ -4,6 +4,19 @@ import Data.Bits (testBit, xor)
 import Data.Char (chr, ord)
 
 
+isPrint :: Char -> Bool
+isPrint c =
+    c == '\t' ||
+    c == '\n' ||
+    c >= ' ' && c <= '~'
+
+
+isLetter :: Char -> Bool
+isLetter c =
+    c >= 'a' && c <= 'z' ||
+    c >= 'A' && c <= 'Z'
+
+
 isHexDigit :: Char -> Bool
 isHexDigit c =
     c >= '0' && c <= '9' ||
@@ -57,13 +70,6 @@ toB64Digit n
   | n == 62 = '+'
   | n == 63 = '/'
   | otherwise = error ("toB64Digit: invalid number " ++ show n)
-
-
-isHumanChar :: Char -> Bool
-isHumanChar c =
-    c == '\t' ||
-    c == '\n' ||
-    c >= ' ' && c <= '~'
 
 
 xorChar :: Char -> Char -> Char

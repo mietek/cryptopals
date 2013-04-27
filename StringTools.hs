@@ -68,46 +68,42 @@ toB64String [c1, c2] = take 3 (toB64Quad c1 c2 '\NUL') ++ "="
 toB64String (c1 : c2 : c3 : cs) = toB64Quad c1 c2 c3 ++ toB64String cs
 
 
-isHumanString :: String -> Bool
-isHumanString cs = all isHumanChar cs && any (== ' ') cs
-
-
 xorString :: String -> String -> String
-xorString key cs = zipWith xorChar (cycle key) cs
+xorString key s = zipWith xorChar (cycle key) s
 
 
 hammingDistanceString :: String -> String -> Double
-hammingDistanceString cs1 cs2 = sum (zipWith hammingDistanceChar cs1 cs2) / l
-  where
-    l = realToFrac (min (length cs1) (length cs2))
+hammingDistanceString s1 s2 = average (zipWith hammingDistanceChar s1 s2)
 
 
--- NOTE: This is a silly, silly metric.
-humanity :: String -> Double
-humanity cs = 1 / realToFrac (length (words (filter (/= '\n') cs)))
+scoreWord :: String -> Double
+scoreWord s = realToFrac (length (filter isLetter s)) / realToFrac (length s)
+
+scorePhrase :: String -> Double
+scorePhrase s = average (map scoreWord (words s))
 
 
 crackSingleCharXor :: String -> Maybe (String, String)
-crackSingleCharXor cs = listToMaybe (crackSingleCharXorList cs)
+crackSingleCharXor s = listToMaybe (crackSingleCharXorList s)
 
 crackSingleCharXorList :: String -> [(String, String)]
-crackSingleCharXorList cs = sortBy (compare `on` humanity . fst) results
+crackSingleCharXorList s = reverse (sortBy (compare `on` scorePhrase . fst) results)
   where
     results = [(text, key) |
       k <- ['\NUL' .. '\DEL'],
       let key = [k],
-      let text = xorString key cs,
-      isHumanString text]
+      let text = xorString key s,
+      all isPrint text]
 
 
 crackMultipleCharXor :: String -> Maybe (String, String)
-crackMultipleCharXor cs = listToMaybe (crackMultipleCharXorList cs)
+crackMultipleCharXor s = listToMaybe (crackMultipleCharXorList s)
 
 crackMultipleCharXorList :: String -> [(String, String)]
-crackMultipleCharXorList cs = [(xorString key cs, key) | key <- keys]
+crackMultipleCharXorList s = [(xorString key s, key) | key <- keys]
   where
-    maxKeySize = min 40 (length cs)
-    blocks = [splitInto s cs | s <- [1 .. maxKeySize]]
+    maxKeySize = min 40 (length s)
+    blocks = [splitInto keySize s | keySize <- [1 .. maxKeySize]]
     sortedBlocks = sortBy (compare `on` distance) blocks
     distance [] = 1.0
     distance (b : bs) = average (map (hammingDistanceString b) bs)

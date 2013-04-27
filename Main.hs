@@ -33,7 +33,7 @@ case_3 = fromJust (crackSingleCharXor xs) @?= result
     result = ("Cooking MC's like a pound of bacon", "X")
 
 case_4 :: Assertion
-case_4 = head (sortBy (compare `on` humanity . fst) (catMaybes (map crackSingleCharXor xss))) @?= result
+case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crackSingleCharXor xss)))) @?= result
   where
     xss = map fromHexString (lines (unsafePerformIO (readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
