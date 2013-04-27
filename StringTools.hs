@@ -37,11 +37,11 @@ scorePhrase :: String -> Double
 scorePhrase s = average (map scoreWord (words s))
 
 
-crackSingleCharXor :: String -> Maybe (String, String)
-crackSingleCharXor s = listToMaybe (crackSingleCharXorList s)
+crackSingleXor :: String -> Maybe (String, String)
+crackSingleXor s = listToMaybe (crackSingleXor' s)
 
-crackSingleCharXorList :: String -> [(String, String)]
-crackSingleCharXorList s = reverse (sortBy (compare `on` scorePhrase . fst) results)
+crackSingleXor' :: String -> [(String, String)]
+crackSingleXor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
   where
     results = [(text, key) |
       k <- ['\NUL' .. '\DEL'],
@@ -50,16 +50,16 @@ crackSingleCharXorList s = reverse (sortBy (compare `on` scorePhrase . fst) resu
       all isPrint text]
 
 
-crackMultipleCharXor :: String -> Maybe (String, String)
-crackMultipleCharXor s = listToMaybe (crackMultipleCharXorList s)
+crackMultipleXor :: String -> Maybe (String, String)
+crackMultipleXor s = listToMaybe (crackMultipleXor' s)
 
-crackMultipleCharXorList :: String -> [(String, String)]
-crackMultipleCharXorList s = [(key `xor` s, key) | key <- keys]
+crackMultipleXor' :: String -> [(String, String)]
+crackMultipleXor' s = [(key `xor` s, key) | key <- keys]
   where
     maxKeySize = min 40 (length s)
     blocks = [splitInto keySize s | keySize <- [1 .. maxKeySize]]
     sortedBlocks = sortBy (compare `on` distance) blocks
     distance [] = 1.0
     distance (b : bs) = average (map (hammingDistance b) bs)
-    maybeResults = [sequence (map crackSingleCharXor (transpose bs)) | bs <- sortedBlocks]
+    maybeResults = [sequence (map crackSingleXor (transpose bs)) | bs <- sortedBlocks]
     keys = map (concatMap snd) (catMaybes maybeResults)

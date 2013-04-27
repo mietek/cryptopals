@@ -27,13 +27,13 @@ case_2 = toHex (key `xor` xs) @?= result
     result = toHex "the kid don't play"
 
 case_3 :: Assertion
-case_3 = fromJust (crackSingleCharXor xs) @?= result
+case_3 = fromJust (crackSingleXor xs) @?= result
   where
     xs = fromHex "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
     result = ("Cooking MC's like a pound of bacon", "X")
 
 case_4 :: Assertion
-case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crackSingleCharXor xss)))) @?= result
+case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crackSingleXor xss)))) @?= result
   where
     xss = map fromHex (lines (unsafePerformIO (readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
@@ -46,7 +46,7 @@ case_5 = toHex (key `xor` xs) @?= result
     result = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
 
 case_6 :: Assertion
-case_6 = snd (fromJust (crackMultipleCharXor xs)) @?= key
+case_6 = snd (fromJust (crackMultipleXor xs)) @?= key
   where
     xs = fromB64 (concat (lines (unsafePerformIO (readFile "case_6.txt"))))
     key = "Terminator X: Bring the noise"
