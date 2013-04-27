@@ -72,13 +72,19 @@ isHumanString :: String -> Bool
 isHumanString cs = all isHumanChar cs && any (== ' ') cs
 
 
+xorString :: String -> String -> String
+xorString key cs = zipWith xorChar (cycle key) cs
+
+
+hammingDistanceString :: String -> String -> Double
+hammingDistanceString cs1 cs2 = sum (zipWith hammingDistanceChar cs1 cs2) / l
+  where
+    l = realToFrac (min (length cs1) (length cs2))
+
+
 -- NOTE: This is a silly, silly metric.
 humanity :: String -> Double
 humanity cs = 1 / realToFrac (length (words (filter (/= '\n') cs)))
-
-
-xorString :: String -> String -> String
-xorString key cs = zipWith xorChar (cycle key) cs
 
 
 crackSingleCharXor :: String -> Maybe (String, String)
@@ -92,12 +98,6 @@ crackSingleCharXorList cs = sortBy (compare `on` humanity . fst) results
       let key = [k],
       let text = xorString key cs,
       isHumanString text]
-
-
-hammingDistanceString :: String -> String -> Double
-hammingDistanceString cs1 cs2 = sum (zipWith hammingDistanceChar cs1 cs2) / l
-  where
-    l = realToFrac (min (length cs1) (length cs2))
 
 
 crackMultipleCharXor :: String -> Maybe (String, String)
