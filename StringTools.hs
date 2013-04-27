@@ -1,7 +1,7 @@
 module StringTools where
 
 import Data.Function (on)
-import Data.List (sortBy, transpose)
+import Data.List (sortBy, tails, transpose)
 import Data.Maybe (catMaybes, listToMaybe)
 
 import CharTools
@@ -72,3 +72,10 @@ crackXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
         case splitInto keySize s of
           [] -> 1.0
           (block : blocks) -> average (map (hammingDistance block) blocks)
+
+
+detectECB :: String -> Bool
+detectECB s = or (map headInTail (tails (splitInto 16 s)))
+  where
+    headInTail [] = False
+    headInTail (block : blocks) = block `elem` blocks

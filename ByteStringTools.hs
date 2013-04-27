@@ -4,7 +4,7 @@ import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.Function (on)
-import Data.List (sortBy)
+import Data.List (sortBy, tails)
 import Data.Maybe (catMaybes, listToMaybe)
 
 import CharTools
@@ -91,3 +91,10 @@ crackXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
         case splitInto keySize s of
           [] -> 1.0
           (block : blocks) -> average (map (hammingDistance block) blocks)
+
+
+detectECB :: ByteString -> Bool
+detectECB s = or (map headInTail (tails (splitInto 16 s)))
+  where
+    headInTail [] = False
+    headInTail (block : blocks) = block `elem` blocks

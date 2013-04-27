@@ -63,9 +63,10 @@ case_7 = last (BS.lines (decryptECB key s)) @?= lastLineText
     lastLineText = "\EOT\EOT\EOT\EOT"
 
 case_8 :: Assertion
-case_8 = undefined
+case_8 = head (filter detectECB ss) @?= result
   where
     ss = map fromHex (BS.lines (unsafePerformIO (BS.readFile "case_8.txt")))
+    result = "\216\128a\151@\168\161\155x@\168\163\FS\129\n=\bd\154\247\r\192oO\213\210\214\156tL\210\131\226\221\ENQ/kd\GS\191\157\DC1\176\&4\133B\187W\bd\154\247\r\192oO\213\210\214\156tL\210\131\148u\201\223\219\193\212e\151\148\157\156~\130\191Z\bd\154\247\r\192oO\213\210\214\156tL\210\131\151\169>\171\141j\236\213fH\145Tx\154k\ETX\bd\154\247\r\192oO\213\210\214\156tL\210\131\212\ETX\CAN\f\152\200\246\219\US*?\156@@\222\176\171Q\178\153\&3\242\193#\197\131\134\176o\186\CANj"
 
 
 main :: IO ()
