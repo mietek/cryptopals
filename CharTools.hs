@@ -52,14 +52,23 @@ toHexDigit n
   | otherwise = error ("toHexDigit: invalid number " ++ show n)
 
 
-fromHexPair :: Char -> Char -> Char
-fromHexPair c1 c2 = chr n
+fromHexPair :: [Char] -> [Char]
+fromHexPair [c1, c2] = fromHexPair' c1 c2
+fromHexPair cs = error ("fromHexPair: invalid input " ++ show cs)
+
+toHexPair :: [Char] -> [Char]
+toHexPair [c] = toHexPair' c
+toHexPair cs = error ("toHexPair: invalid input " ++ show cs)
+
+
+fromHexPair' :: Char -> Char -> [Char]
+fromHexPair' c1 c2 = map chr [n]
   where
     n = (k1 `shiftL` 4) .|. k2
     [k1, k2] = map fromHexDigit [c1, c2]
 
-toHexPair :: Char -> [Char]
-toHexPair c = map toHexDigit [k1, k2]
+toHexPair' :: Char -> [Char]
+toHexPair' c = map toHexDigit [k1, k2]
   where
     n = ord c
     k1 = (n .&. 0xF0) `shiftR` 4
@@ -85,16 +94,31 @@ toB64Digit n
   | otherwise = error ("toB64Digit: invalid number " ++ show n)
 
 
-fromB64Quad :: Char -> Char -> Char -> Char -> [Char]
-fromB64Quad c1 c2 c3 c4 = map chr [n1, n2, n3]
+fromB64Quad :: [Char] -> [Char]
+fromB64Quad [c1, c2] = take 1 (fromB64Quad' c1 c2 '=' '=')
+fromB64Quad [c1, c2, '=', '='] = take 1 (fromB64Quad' c1 c2 '=' '=')
+fromB64Quad [c1, c2, c3] = take 2 (fromB64Quad' c1 c2 c3 '=')
+fromB64Quad [c1, c2, c3, '='] = take 2 (fromB64Quad' c1 c2 c3 '=')
+fromB64Quad [c1, c2, c3, c4] = fromB64Quad' c1 c2 c3 c4
+fromB64Quad cs = error ("fromB64Quad: invalid input " ++ show cs)
+
+toB64Quad :: [Char] -> [Char]
+toB64Quad [c1] = take 2 (toB64Quad' c1 '\NUL' '\NUL') ++ "=="
+toB64Quad [c1, c2] = take 3 (toB64Quad' c1 c2 '\NUL') ++ "="
+toB64Quad [c1, c2, c3] = toB64Quad' c1 c2 c3
+toB64Quad cs = error ("toB64Quad: invalid input " ++ show cs)
+
+
+fromB64Quad' :: Char -> Char -> Char -> Char -> [Char]
+fromB64Quad' c1 c2 c3 c4 = map chr [n1, n2, n3]
   where
     n1 = (k1 `shiftL` 2) .|. ((k2 .&. 0x30) `shiftR` 4)
     n2 = ((k2 .&. 0x0F) `shiftL` 4) .|. ((k3 .&. 0x3C) `shiftR` 2)
     n3 = ((k3 .&. 0x03) `shiftL` 6) .|. k4
     [k1, k2, k3, k4] = map fromB64Digit [c1, c2, c3, c4]
 
-toB64Quad :: Char -> Char -> Char -> [Char]
-toB64Quad c1 c2 c3 = map toB64Digit [k1, k2, k3, k4]
+toB64Quad' :: Char -> Char -> Char -> [Char]
+toB64Quad' c1 c2 c3 = map toB64Digit [k1, k2, k3, k4]
   where
     k1 = (n1 .&. 0xFC) `shiftR` 2
     k2 = ((n1 .&. 0x03) `shiftL` 4) .|. ((n2 .&. 0xF0) `shiftR` 4)

@@ -10,28 +10,28 @@ import Tools
 
 fromHexString :: String -> String
 fromHexString [] = []
-fromHexString [c1] = error ("fromHexString: truncated digits " ++ show [c1])
-fromHexString (c1 : c2 : cs) = fromHexPair c1 c2 : fromHexString cs
+fromHexString s = fromHexPair s1 ++ fromHexString s2
+  where
+    (s1, s2) = splitAt 2 s
 
 toHexString :: String -> String
 toHexString [] = []
-toHexString (c : cs) = toHexPair c ++ toHexString cs
+toHexString s = toHexPair s1 ++ toHexString s2
+  where
+    (s1, s2) = splitAt 1 s
 
 
 fromB64String :: String -> String
 fromB64String [] = []
-fromB64String [c1] = error ("fromB64String: truncated digits " ++ show [c1])
-fromB64String [c1, c2] = take 1 (fromB64Quad c1 c2 '=' '=')
-fromB64String [c1, c2, '=', '='] = take 1 (fromB64Quad c1 c2 '=' '=')
-fromB64String [c1, c2, c3] = take 2 (fromB64Quad c1 c2 c3 '=')
-fromB64String [c1, c2, c3, '='] = take 2 (fromB64Quad c1 c2 c3 '=')
-fromB64String (c1 : c2 : c3 : c4 : cs) = fromB64Quad c1 c2 c3 c4 ++ fromB64String cs
+fromB64String s = fromB64Quad s1 ++ fromB64String s2
+  where
+    (s1, s2) = splitAt 4 s
 
 toB64String :: String -> String
 toB64String [] = []
-toB64String [c1] = take 2 (toB64Quad c1 '\NUL' '\NUL') ++ "=="
-toB64String [c1, c2] = take 3 (toB64Quad c1 c2 '\NUL') ++ "="
-toB64String (c1 : c2 : c3 : cs) = toB64Quad c1 c2 c3 ++ toB64String cs
+toB64String s = toB64Quad s1 ++ toB64String s2
+  where
+    (s1, s2) = splitAt 3 s
 
 
 xorString :: String -> String -> String
