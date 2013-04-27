@@ -62,6 +62,11 @@ case_7 = last (BS.lines (decryptECB key s)) @?= lastLineText
     s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_7.txt"))))
     lastLineText = "\EOT\EOT\EOT\EOT"
 
+case_8 :: Assertion
+case_8 = undefined
+  where
+    ss = map fromHex (BS.lines (unsafePerformIO (BS.readFile "case_8.txt")))
+
 
 main :: IO ()
 main = $(defaultMainGenerator)
