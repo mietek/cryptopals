@@ -5,13 +5,6 @@ import qualified Data.Char as C
 import Data.Word (Word8)
 
 
-isHexNumber :: Int -> Bool
-isHexNumber n = n >= 0 && n <= 15
-
-isB64Number :: Int -> Bool
-isB64Number n = n >= 0 && n <= 63
-
-
 chr :: Word8 -> Char
 chr n = C.chr (fromIntegral n)
 
