@@ -46,7 +46,7 @@ case_5 = toHex (key `xor` s) @?= result
     result = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
 
 case_6 :: Assertion
-case_6 = snd (fromJust (crackMultipleXor s)) @?= key
+case_6 = snd (fromJust (crackXor s)) @?= key
   where
     s = fromB64 (concat (lines (unsafePerformIO (readFile "case_6.txt"))))
     key = "Terminator X: Bring the noise"

@@ -60,11 +60,11 @@ crackNXor keySize s = do
     blocks = splitInto keySize s
 
 
-crackMultipleXor :: String -> Maybe (String, String)
-crackMultipleXor s = listToMaybe (crackMultipleXor' s)
+crackXor :: String -> Maybe (String, String)
+crackXor s = listToMaybe (crackXor' s)
 
-crackMultipleXor' :: String -> [(String, String)]
-crackMultipleXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
+crackXor' :: String -> [(String, String)]
+crackXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
   where
     maxKeySize = min 40 (length s)
     keySizes = reverse (sortBy (compare `on` scoreKeySize) [1 .. maxKeySize])
