@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Main where
 
+import qualified Data.ByteString.Lazy.Char8 as BS
 import Data.Function (on)
 import Data.List (sortBy)
 import Data.Maybe (catMaybes, fromJust)
@@ -10,7 +12,7 @@ import Test.Framework.TH (defaultMainGenerator)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit ((@?=), Assertion)
 
-import StringTools
+import ByteStringTools
 
 
 case_1 :: Assertion
@@ -36,7 +38,7 @@ case_4 :: Assertion
 case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) partials)) @?= result
   where
     partials = catMaybes (map crack1Xor ss)
-    ss = map fromHex (lines (unsafePerformIO (readFile "case_4.txt")))
+    ss = map fromHex (BS.lines (unsafePerformIO (BS.readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
 
 case_5 :: Assertion
@@ -49,7 +51,7 @@ case_5 = toHex (key `xor` s) @?= result
 case_6 :: Assertion
 case_6 = snd (fromJust (crackXor s)) @?= key
   where
-    s = fromB64 (concat (lines (unsafePerformIO (readFile "case_6.txt"))))
+    s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_6.txt"))))
     key = "Terminator X: Bring the noise"
 
 
