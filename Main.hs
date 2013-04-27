@@ -3,6 +3,7 @@
 
 module Main where
 
+import Crypto.Cipher.AES (initKey, decryptECB)
 import qualified Data.ByteString.Char8 as BS
 import Data.Function (on)
 import Data.List (sortBy)
@@ -53,6 +54,13 @@ case_6 = snd (fromJust (crackXor s)) @?= key
   where
     s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_6.txt"))))
     key = "Terminator X: Bring the noise"
+
+case_7 :: Assertion
+case_7 = last (BS.lines (decryptECB key s)) @?= lastLineText
+  where
+    key = initKey "YELLOW SUBMARINE"
+    s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_7.txt"))))
+    lastLineText = "\EOT\EOT\EOT\EOT"
 
 
 main :: IO ()
