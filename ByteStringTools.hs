@@ -1,9 +1,9 @@
 module ByteStringTools where
 
-import qualified Data.ByteString.Lazy.Char8 as BS
-import Data.ByteString.Lazy.Char8 (ByteString)
+import qualified Data.ByteString.Char8 as BS
+import Data.ByteString.Char8 (ByteString)
+import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.Function (on)
-import Data.Int (Int64)
 import Data.List (sortBy)
 import Data.Maybe (catMaybes, listToMaybe)
 
@@ -11,7 +11,7 @@ import CharTools
 import Tools hiding (splitInto, concatMapInto)
 
 
-splitInto :: Int64 -> ByteString -> [ByteString]
+splitInto :: Int -> ByteString -> [ByteString]
 splitInto n s0 = loop s0
   where
     loop s
@@ -20,7 +20,7 @@ splitInto n s0 = loop s0
         where
           (s1, s2) = BS.splitAt n s
 
-concatMapInto :: ([Char] -> [Char]) -> Int64 -> ByteString -> ByteString
+concatMapInto :: ([Char] -> [Char]) -> Int -> ByteString -> ByteString
 concatMapInto f n s = BS.concat (map (BS.pack . f . BS.unpack) (splitInto n s))
 
 
@@ -39,7 +39,10 @@ fromB64 s = concatMapInto fromB64Quad 4 s
 
 
 xor :: ByteString -> ByteString -> ByteString
-xor key s = BS.pack (BS.zipWith xorChar (BS.cycle key) s)
+xor key s = BS.pack (LBS.zipWith xorChar (LBS.cycle key') s')
+  where
+    key' = LBS.fromChunks [key]
+    s' = LBS.fromChunks [s]
 
 
 hammingDistance :: ByteString -> ByteString -> Double
@@ -66,7 +69,7 @@ crack1Xor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
         BS.all isPrint text]
 
 
-crackNXor :: Int64 -> ByteString -> Maybe (ByteString, ByteString)
+crackNXor :: Int -> ByteString -> Maybe (ByteString, ByteString)
 crackNXor keySize s = do
     partials <- sequence (map crack1Xor (BS.transpose blocks))
     let key = BS.concat (map snd partials)

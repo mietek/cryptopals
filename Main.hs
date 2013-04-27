@@ -3,7 +3,7 @@
 
 module Main where
 
-import qualified Data.ByteString.Lazy.Char8 as BS
+import qualified Data.ByteString.Char8 as BS
 import Data.Function (on)
 import Data.List (sortBy)
 import Data.Maybe (catMaybes, fromJust)
