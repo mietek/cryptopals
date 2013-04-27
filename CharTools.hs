@@ -4,18 +4,23 @@ import Data.Bits ((.|.), (.&.), shiftL, shiftR, testBit, xor)
 import Data.Char (chr, ord)
 
 
+isHexNumber :: Int -> Bool
+isHexNumber n = n >= 0 && n <= 15
+
+isB64Number :: Int -> Bool
+isB64Number n = n >= 0 && n <= 63
+
+
 isPrint :: Char -> Bool
 isPrint c =
     c == '\t' ||
     c == '\n' ||
     c >= ' ' && c <= '~'
 
-
 isLetter :: Char -> Bool
 isLetter c =
     c >= 'a' && c <= 'z' ||
     c >= 'A' && c <= 'Z'
-
 
 isHexDigit :: Char -> Bool
 isHexDigit c =
@@ -23,16 +28,21 @@ isHexDigit c =
     c >= 'a' && c <= 'f' ||
     c >= 'A' && c <= 'F'
 
+isB64Digit :: Char -> Bool
+isB64Digit c =
+    c >= 'A' && c <= 'Z' ||
+    c >= 'a' && c <= 'z' ||
+    c >= '0' && c <= '9' ||
+    c == '+' ||
+    c == '/'
+
+
 fromHexDigit :: Char -> Int
 fromHexDigit c
   | c >= '0' && c <= '9' = ord c - ord '0'
   | c >= 'a' && c <= 'f' = ord c - ord 'a' + 10
   | c >= 'A' && c <= 'F' = ord c - ord 'A' + 10
   | otherwise = error ("fromHexDigit: invalid digit " ++ show c)
-
-
-isHexNumber :: Int -> Bool
-isHexNumber n = n >= 0 && n <= 15
 
 toHexDigit :: Int -> Char
 toHexDigit n
@@ -55,14 +65,6 @@ toHexPair c = map toHexDigit [k1, k2]
     k2 = n .&. 0x0F
 
 
-isB64Digit :: Char -> Bool
-isB64Digit c =
-    c >= 'A' && c <= 'Z' ||
-    c >= 'a' && c <= 'z' ||
-    c >= '0' && c <= '9' ||
-    c == '+' ||
-    c == '/'
-
 fromB64Digit :: Char -> Int
 fromB64Digit c
   | c >= 'A' && c <= 'Z' = ord c - ord 'A'
@@ -71,10 +73,6 @@ fromB64Digit c
   | c == '+' = 62
   | c == '/' = 63
   | otherwise = error ("fromB64Digit: invalid digit " ++ show c)
-
-
-isB64Number :: Int -> Bool
-isB64Number n = n >= 0 && n <= 63
 
 toB64Digit :: Int -> Char
 toB64Digit n
