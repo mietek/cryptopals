@@ -8,30 +8,30 @@ import CharTools
 import Tools
 
 
-fromHexString :: String -> String
-fromHexString [] = []
-fromHexString s = fromHexPair s1 ++ fromHexString s2
-  where
-    (s1, s2) = splitAt 2 s
-
 toHexString :: String -> String
 toHexString [] = []
 toHexString s = toHexPair s1 ++ toHexString s2
   where
     (s1, s2) = splitAt 1 s
 
-
-fromB64String :: String -> String
-fromB64String [] = []
-fromB64String s = fromB64Quad s1 ++ fromB64String s2
+fromHexString :: String -> String
+fromHexString [] = []
+fromHexString s = fromHexPair s1 ++ fromHexString s2
   where
-    (s1, s2) = splitAt 4 s
+    (s1, s2) = splitAt 2 s
+
 
 toB64String :: String -> String
 toB64String [] = []
 toB64String s = toB64Quad s1 ++ toB64String s2
   where
     (s1, s2) = splitAt 3 s
+
+fromB64String :: String -> String
+fromB64String [] = []
+fromB64String s = fromB64Quad s1 ++ fromB64String s2
+  where
+    (s1, s2) = splitAt 4 s
 
 
 xorString :: String -> String -> String
