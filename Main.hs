@@ -33,8 +33,9 @@ case_3 = fromJust (crack1Xor s) @?= result
     result = ("Cooking MC's like a pound of bacon", "X")
 
 case_4 :: Assertion
-case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crack1Xor ss)))) @?= result
+case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) partials)) @?= result
   where
+    partials = catMaybes (map crack1Xor ss)
     ss = map fromHex (lines (unsafePerformIO (readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
 
