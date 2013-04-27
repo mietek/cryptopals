@@ -1,7 +1,8 @@
 module CharTools where
 
 import Data.Bits ((.|.), (.&.), shiftL, shiftR, testBit, xor)
-import Data.Char (chr, ord)
+import qualified Data.Char as C
+import Data.Word (Word8)
 
 
 isHexNumber :: Int -> Bool
@@ -9,6 +10,13 @@ isHexNumber n = n >= 0 && n <= 15
 
 isB64Number :: Int -> Bool
 isB64Number n = n >= 0 && n <= 63
+
+
+chr :: Word8 -> Char
+chr n = C.chr (fromIntegral n)
+
+ord :: Char -> Word8
+ord c = fromIntegral (C.ord c)
 
 
 isPrint :: Char -> Bool
@@ -37,14 +45,14 @@ isB64Digit c =
     c == '/'
 
 
-fromHexDigit :: Char -> Int
+fromHexDigit :: Char -> Word8
 fromHexDigit c
   | c >= '0' && c <= '9' = ord c - ord '0'
   | c >= 'a' && c <= 'f' = ord c - ord 'a' + 10
   | c >= 'A' && c <= 'F' = ord c - ord 'A' + 10
   | otherwise = error ("fromHexDigit: invalid digit " ++ show c)
 
-toHexDigit :: Int -> Char
+toHexDigit :: Word8 -> Char
 toHexDigit n
   | n >= 0 && n <= 9 = chr (ord '0' + n)
   | n >= 10 && n <= 15 = chr (ord 'a' - 10 + n)
@@ -65,7 +73,7 @@ toHexPair c = map toHexDigit [k1, k2]
     k2 = n .&. 0x0F
 
 
-fromB64Digit :: Char -> Int
+fromB64Digit :: Char -> Word8
 fromB64Digit c
   | c >= 'A' && c <= 'Z' = ord c - ord 'A'
   | c >= 'a' && c <= 'z' = ord c - ord 'a' + 26
@@ -74,7 +82,7 @@ fromB64Digit c
   | c == '/' = 63
   | otherwise = error ("fromB64Digit: invalid digit " ++ show c)
 
-toB64Digit :: Int -> Char
+toB64Digit :: Word8 -> Char
 toB64Digit n
   | n >= 0 && n <= 25 = chr (ord 'A' + n)
   | n >= 26 && n <= 51 = chr (ord 'a' - 26 + n)
