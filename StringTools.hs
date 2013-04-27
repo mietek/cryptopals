@@ -37,29 +37,38 @@ scorePhrase :: String -> Double
 scorePhrase s = average (map scoreWord (words s))
 
 
-crackSingleXor :: String -> Maybe (String, String)
-crackSingleXor s = listToMaybe (crackSingleXor' s)
+crack1Xor :: String -> Maybe (String, String)
+crack1Xor s = listToMaybe (crack1Xor' s)
 
-crackSingleXor' :: String -> [(String, String)]
-crackSingleXor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
+crack1Xor' :: String -> [(String, String)]
+crack1Xor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
   where
+    keys = map (:[]) ['\NUL' .. '\DEL']
     results = [(text, key) |
-      k <- ['\NUL' .. '\DEL'],
-      let key = [k],
-      let text = key `xor` s,
-      all isPrint text]
+        key <- keys,
+        let text = key `xor` s,
+        all isPrint text]
+
+
+crackNXor :: Int -> String -> Maybe (String, String)
+crackNXor keySize s = do
+    partials <- sequence (map crack1Xor (transpose blocks))
+    let key = concatMap snd partials
+    let text = key `xor` s
+    return (text, key)
+  where
+    blocks = splitInto keySize s
 
 
 crackMultipleXor :: String -> Maybe (String, String)
 crackMultipleXor s = listToMaybe (crackMultipleXor' s)
 
 crackMultipleXor' :: String -> [(String, String)]
-crackMultipleXor' s = [(key `xor` s, key) | key <- keys]
+crackMultipleXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
   where
     maxKeySize = min 40 (length s)
-    blocks = [splitInto keySize s | keySize <- [1 .. maxKeySize]]
-    sortedBlocks = sortBy (compare `on` distance) blocks
-    distance [] = 1.0
-    distance (b : bs) = average (map (hammingDistance b) bs)
-    maybeResults = [sequence (map crackSingleXor (transpose bs)) | bs <- sortedBlocks]
-    keys = map (concatMap snd) (catMaybes maybeResults)
+    keySizes = reverse (sortBy (compare `on` scoreKeySize) [1 .. maxKeySize])
+    scoreKeySize keySize =
+        case splitInto keySize s of
+          [] -> 1.0
+          (block : blocks) -> average (map (hammingDistance block) blocks)

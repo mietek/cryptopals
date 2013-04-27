@@ -27,13 +27,13 @@ case_2 = toHex (key `xor` xs) @?= result
     result = toHex "the kid don't play"
 
 case_3 :: Assertion
-case_3 = fromJust (crackSingleXor xs) @?= result
+case_3 = fromJust (crack1Xor xs) @?= result
   where
     xs = fromHex "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
     result = ("Cooking MC's like a pound of bacon", "X")
 
 case_4 :: Assertion
-case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crackSingleXor xss)))) @?= result
+case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crack1Xor xss)))) @?= result
   where
     xss = map fromHex (lines (unsafePerformIO (readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
