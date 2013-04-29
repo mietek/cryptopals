@@ -1,0 +1,32 @@
+Matasano Crypto Challenges
+
+Mietek Bak <mietek@bak.io>
+
+
+How to build, assuming Haskell Platform is installed:
+
+    $ cabal install cipher-aes test-framework-hunit test-framework-th
+    $ make
+
+
+How to run:
+
+    $ ./m
+
+
+Expected output:
+
+    Main:
+      1: [OK]
+      2: [OK]
+      3: [OK]
+      4: [OK]
+      5: [OK]
+      6: [OK]
+      7: [OK]
+      8: [OK]
+
+             Test Cases  Total
+     Passed  8           8
+     Failed  0           0
+     Total   8           8
