@@ -6,14 +6,13 @@ module Main where
 
 import Crypto.Cipher.AES (initKey, decryptECB)
 import qualified Data.ByteString.Char8 as BS
-import Data.Function (on)
-import Data.List (sortBy)
 import Data.Maybe (catMaybes, fromJust)
 import Test.Framework.TH (defaultMainGenerator)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit ((@?=), Assertion)
 
 import ByteStringTools
+import Tools
 
 
 case_1 :: Assertion
@@ -38,7 +37,7 @@ case_3 = fromJust (crack1Xor s) @?= result
 case_4 :: Assertion
 case_4 = do
     ss <- fmap (map fromHex . BS.lines) (BS.readFile "case_4.txt")
-    head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crack1Xor ss)))) @?= result
+    head (orderDescendingOn (scorePhrase . fst) (catMaybes (map crack1Xor ss))) @?= result
   where
     result = ("Now that the party is jumping\n", "5")
 
@@ -52,8 +51,10 @@ case_5 = toHex (key `xor` s) @?= result
 case_6 :: Assertion
 case_6 = do
     s <- fmap (fromB64 . BS.concat . BS.lines) (BS.readFile "case_6.txt")
-    result <- fmap (, "Terminator X: Bring the noise") (BS.readFile "result_6.txt")
-    fromJust (crackXor s) @?= result
+    result <- BS.readFile "result_6.txt"
+    fromJust (crackXor s) @?= (result, resultKey)
+  where
+    resultKey = "Terminator X: Bring the noise"
 
 case_7 :: Assertion
 case_7 = do

@@ -1,7 +1,6 @@
 module StringTools where
 
-import Data.Function (on)
-import Data.List (sortBy, tails, transpose)
+import Data.List (tails, transpose)
 import Data.Maybe (catMaybes, listToMaybe)
 
 import CharTools
@@ -45,17 +44,17 @@ crack1Xor :: String -> Maybe (String, String)
 crack1Xor s = listToMaybe (crack1Xor' s)
 
 crack1Xor' :: String -> [(String, String)]
-crack1Xor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
+crack1Xor' s = orderDescendingOn (scorePhrase . fst) results
   where
-    keys = map (:[]) ['\NUL' .. '\DEL']
+    keys = map (: []) ['\NUL' .. '\DEL']
     results = [(text, key) |
         key <- keys,
         let text = key `xor` s,
         all isPrint text]
 
 
-crackNXor :: Int -> String -> Maybe (String, String)
-crackNXor keySize s = do
+crackNXor :: String -> Int -> Maybe (String, String)
+crackNXor s keySize = do
     partials <- sequence (map crack1Xor (transpose blocks))
     let key = concatMap snd partials
     let text = key `xor` s
@@ -68,10 +67,10 @@ crackXor :: String -> Maybe (String, String)
 crackXor s = listToMaybe (crackXor' s)
 
 crackXor' :: String -> [(String, String)]
-crackXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
+crackXor' s = catMaybes (map (crackNXor s) keySizes)
   where
     maxKeySize = min 40 (length s)
-    keySizes = reverse (sortBy (compare `on` scoreKeySize) [1 .. maxKeySize])
+    keySizes = orderDescendingOn scoreKeySize [1 .. maxKeySize]
     scoreKeySize keySize =
         case splitInto keySize s of
           [] -> 1.0

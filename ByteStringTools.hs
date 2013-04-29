@@ -3,8 +3,7 @@ module ByteStringTools where
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import Data.Function (on)
-import Data.List (sortBy, tails)
+import Data.List (tails)
 import Data.Maybe (catMaybes, listToMaybe)
 
 import CharTools
@@ -63,7 +62,7 @@ crack1Xor :: ByteString -> Maybe (ByteString, ByteString)
 crack1Xor s = listToMaybe (crack1Xor' s)
 
 crack1Xor' :: ByteString -> [(ByteString, ByteString)]
-crack1Xor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
+crack1Xor' s = orderDescendingOn (scorePhrase . fst) results
   where
     keys = map BS.singleton ['\NUL' .. '\DEL']
     results = [(text, key) |
@@ -72,8 +71,8 @@ crack1Xor' s = reverse (sortBy (compare `on` scorePhrase . fst) results)
         BS.all isPrint text]
 
 
-crackNXor :: Int -> ByteString -> Maybe (ByteString, ByteString)
-crackNXor keySize s = do
+crackNXor :: ByteString -> Int -> Maybe (ByteString, ByteString)
+crackNXor s keySize = do
     partials <- sequence (map crack1Xor (BS.transpose blocks))
     let key = BS.concat (map snd partials)
     let text = key `xor` s
@@ -86,10 +85,10 @@ crackXor :: ByteString -> Maybe (ByteString, ByteString)
 crackXor s = listToMaybe (crackXor' s)
 
 crackXor' :: ByteString -> [(ByteString, ByteString)]
-crackXor' s = catMaybes [crackNXor keySize s | keySize <- keySizes]
+crackXor' s = catMaybes (map (crackNXor s) keySizes)
   where
     maxKeySize = min 40 (BS.length s)
-    keySizes = reverse (sortBy (compare `on` scoreKeySize) [1 .. maxKeySize])
+    keySizes = orderDescendingOn scoreKeySize [1 .. maxKeySize]
     scoreKeySize keySize =
         case splitInto keySize s of
           [] -> 1.0

@@ -1,5 +1,8 @@
 module Tools where
 
+import Data.Function (on)
+import Data.List (sortBy)
+
 
 isHexNumber :: (Num a, Ord a) => a -> Bool
 isHexNumber n = n >= 0 && n <= 15
@@ -22,3 +25,7 @@ concatMapInto f n xs = concatMap f (splitInto n xs)
 
 average :: Fractional a => [a] -> a
 average xs = sum xs / realToFrac (length xs)
+
+
+orderDescendingOn :: Ord b => (a -> b) -> [a] -> [a]
+orderDescendingOn f xs = reverse (sortBy (compare `on` f) xs)
