@@ -6,8 +6,8 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.List (tails)
 import Data.Maybe (catMaybes, listToMaybe)
 
-import CharTools
-import Tools hiding (splitInto, concatMapInto)
+import CharTools (fromB64Quad, fromHexPair, hammingDistanceChar, isLetter, isPrint, toB64Quad, toHexPair, xorChar)
+import Tools (average, orderDescendingOn)
 
 
 splitInto :: Int -> ByteString -> [ByteString]

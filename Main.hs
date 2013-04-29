@@ -11,8 +11,8 @@ import Test.Framework.TH (defaultMainGenerator)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit ((@?=), Assertion)
 
-import ByteStringTools
-import Tools
+import ByteStringTools (crack1Xor, crackXor, detectECB, fromB64, fromHex, scorePhrase, toB64, toHex, xor)
+import Tools (orderDescendingOn)
 
 
 case_1 :: Assertion
