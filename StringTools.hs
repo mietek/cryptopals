@@ -23,7 +23,11 @@ fromB64 s = concatMapInto fromB64Quad 4 s
 
 
 xor :: String -> String -> String
-xor key s = zipWith xorChar (cycle key) s
+xor s1 s2
+  | length s1 <= length s2 = xor' s1 s2
+  | otherwise = xor' s2 s1
+  where
+    xor' key s = zipWith xorChar (cycle key) s
 
 
 hammingDistance :: String -> String -> Double

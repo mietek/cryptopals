@@ -39,10 +39,13 @@ fromB64 s = concatMapInto fromB64Quad 4 s
 
 
 xor :: ByteString -> ByteString -> ByteString
-xor key s = BS.pack (LBS.zipWith xorChar (LBS.cycle key') s')
+xor s1 s2
+  | BS.length s1 <= BS.length s2 = xor' s1' s2'
+  | otherwise = xor' s2' s1'
   where
-    key' = LBS.fromChunks [key]
-    s' = LBS.fromChunks [s]
+    xor' key s = BS.pack (LBS.zipWith xorChar (LBS.cycle key) s)
+    s1' = LBS.fromChunks [s1]
+    s2' = LBS.fromChunks [s2]
 
 
 hammingDistance :: ByteString -> ByteString -> Double
