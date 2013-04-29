@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TupleSections #-}
 
 module Main where
 
@@ -8,7 +9,6 @@ import qualified Data.ByteString.Char8 as BS
 import Data.Function (on)
 import Data.List (sortBy)
 import Data.Maybe (catMaybes, fromJust)
-import System.IO.Unsafe (unsafePerformIO)
 import Test.Framework.TH (defaultMainGenerator)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit ((@?=), Assertion)
@@ -36,10 +36,10 @@ case_3 = fromJust (crack1Xor s) @?= result
     result = ("Cooking MC's like a pound of bacon", "X")
 
 case_4 :: Assertion
-case_4 = head (reverse (sortBy (compare `on` scorePhrase . fst) partials)) @?= result
+case_4 = do
+    ss <- fmap (map fromHex . BS.lines) (BS.readFile "case_4.txt")
+    head (reverse (sortBy (compare `on` scorePhrase . fst) (catMaybes (map crack1Xor ss)))) @?= result
   where
-    partials = catMaybes (map crack1Xor ss)
-    ss = map fromHex (BS.lines (unsafePerformIO (BS.readFile "case_4.txt")))
     result = ("Now that the party is jumping\n", "5")
 
 case_5 :: Assertion
@@ -50,22 +50,24 @@ case_5 = toHex (key `xor` s) @?= result
     result = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
 
 case_6 :: Assertion
-case_6 = fromJust (crackXor s) @?= result
-  where
-    s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_6.txt"))))
-    result = (unsafePerformIO (BS.readFile "result_6.txt"), "Terminator X: Bring the noise")
+case_6 = do
+    s <- fmap (fromB64 . BS.concat . BS.lines) (BS.readFile "case_6.txt")
+    result <- fmap (, "Terminator X: Bring the noise") (BS.readFile "result_6.txt")
+    fromJust (crackXor s) @?= result
 
 case_7 :: Assertion
-case_7 = decryptECB key s @?= result
+case_7 = do
+    s <- fmap (fromB64 . BS.concat . BS.lines) (BS.readFile "case_7.txt")
+    result <- BS.readFile "result_7.txt"
+    decryptECB key s @?= result
   where
     key = initKey "YELLOW SUBMARINE"
-    s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_7.txt"))))
-    result = unsafePerformIO (BS.readFile "result_7.txt")
 
 case_8 :: Assertion
-case_8 = head (filter detectECB ss) @?= result
+case_8 = do
+    ss <- fmap (map fromHex . BS.lines) (BS.readFile "case_8.txt")
+    head (filter detectECB ss) @?= result
   where
-    ss = map fromHex (BS.lines (unsafePerformIO (BS.readFile "case_8.txt")))
     result = fromHex "d880619740a8a19b7840a8a31c810a3d08649af70dc06f4fd5d2d69c744cd283e2dd052f6b641dbf9d11b0348542bb5708649af70dc06f4fd5d2d69c744cd2839475c9dfdbc1d46597949d9c7e82bf5a08649af70dc06f4fd5d2d69c744cd28397a93eab8d6aecd566489154789a6b0308649af70dc06f4fd5d2d69c744cd283d403180c98c8f6db1f2a3f9c4040deb0ab51b29933f2c123c58386b06fba186a"
 
 
