@@ -56,11 +56,11 @@ case_6 = snd (fromJust (crackXor s)) @?= key
     key = "Terminator X: Bring the noise"
 
 case_7 :: Assertion
-case_7 = last (BS.lines (decryptECB key s)) @?= lastLineText
+case_7 = decryptECB key s @?= result
   where
     key = initKey "YELLOW SUBMARINE"
     s = fromB64 (BS.concat (BS.lines (unsafePerformIO (BS.readFile "case_7.txt"))))
-    lastLineText = "\EOT\EOT\EOT\EOT"
+    result = unsafePerformIO (BS.readFile "result_7.txt")
 
 case_8 :: Assertion
 case_8 = head (filter detectECB ss) @?= result
