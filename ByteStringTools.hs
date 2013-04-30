@@ -3,6 +3,7 @@ module ByteStringTools where
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.Char (chr)
 import Data.List (tails)
 import Data.Maybe (catMaybes, listToMaybe)
 
@@ -100,3 +101,11 @@ detectECB s = or (map headInTail (tails (splitInto 16 s)))
   where
     headInTail [] = False
     headInTail (block : blocks) = block `elem` blocks
+
+
+padPKCS7 :: ByteString -> Int -> ByteString
+padPKCS7 s blockSize
+  | blockSize <= 256 = BS.append s (BS.replicate padSize (chr padSize))
+  | otherwise = error ("padPKCS7: invalid block size " ++ show blockSize)
+  where
+    padSize = blockSize - (BS.length s `mod` blockSize)
