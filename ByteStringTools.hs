@@ -102,8 +102,8 @@ crackXor' s = catMaybes (map (crackNXor s) keySizes)
           (block : blocks) -> average (map (hammingDistance block) blocks)
 
 
-detectECB :: ByteString -> Bool
-detectECB s = or (map headInTail (tails (splitInto 16 s)))
+detectECB :: Int -> ByteString -> Bool
+detectECB blockSize s = or (map headInTail (tails (splitInto blockSize s)))
   where
     headInTail [] = False
     headInTail (block : blocks) = block `elem` blocks
