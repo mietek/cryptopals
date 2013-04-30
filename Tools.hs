@@ -12,7 +12,9 @@ isB64Number n = n >= 0 && n <= 63
 
 
 splitInto :: Int -> [a] -> [[a]]
-splitInto n xs0 = loop xs0
+splitInto n xs0
+  | n >= 1 = loop xs0
+  | otherwise = error ("splitInto: invalid n " ++ show n)
   where
     loop [] = []
     loop xs = xs1 : loop xs2
@@ -20,7 +22,9 @@ splitInto n xs0 = loop xs0
         (xs1, xs2) = splitAt n xs
 
 concatMapInto :: ([a] -> [a]) -> Int -> [a] -> [a]
-concatMapInto f n xs = concatMap f (splitInto n xs)
+concatMapInto f n xs
+  | n >= 1 = concatMap f (splitInto n xs)
+  | otherwise = error ("concatMapInto: invalid n " ++ show n)
 
 
 average :: Fractional a => [a] -> a

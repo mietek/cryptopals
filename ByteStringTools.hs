@@ -12,7 +12,9 @@ import Tools (average, orderDescendingOn)
 
 
 splitInto :: Int -> ByteString -> [ByteString]
-splitInto n s0 = loop s0
+splitInto n s0
+  | n >= 1 = loop s0
+  | otherwise = error ("splitInto: invalid n " ++ show n)
   where
     loop s
       | BS.null s = []
@@ -21,7 +23,9 @@ splitInto n s0 = loop s0
           (s1, s2) = BS.splitAt n s
 
 concatMapInto :: ([Char] -> [Char]) -> Int -> ByteString -> ByteString
-concatMapInto f n s = BS.concat (map (BS.pack . f . BS.unpack) (splitInto n s))
+concatMapInto f n s
+  | n >= 1 = BS.concat (map (BS.pack . f . BS.unpack) (splitInto n s))
+  | otherwise = error ("concatMapInto: invalid n " ++ show n)
 
 
 toHex :: ByteString -> ByteString
@@ -73,11 +77,13 @@ crack1Xor' s = orderDescendingOn (scorePhrase . fst) results
 
 
 crackNXor :: ByteString -> Int -> Maybe (ByteString, ByteString)
-crackNXor s keySize = do
-    partials <- sequence (map crack1Xor (BS.transpose blocks))
-    let key = BS.concat (map snd partials)
-    let text = key `xor` s
-    return (text, key)
+crackNXor s keySize
+  | keySize >= 1 = do
+      partials <- sequence (map crack1Xor (BS.transpose blocks))
+      let key = BS.concat (map snd partials)
+      let text = key `xor` s
+      return (text, key)
+  | otherwise = error ("crackNXor: invalid key size " ++ show keySize)
   where
     blocks = splitInto keySize s
 
@@ -105,7 +111,7 @@ detectECB s = or (map headInTail (tails (splitInto 16 s)))
 
 padPKCS7 :: ByteString -> Int -> ByteString
 padPKCS7 s blockSize
-  | blockSize <= 256 = BS.append s (BS.replicate padSize (chr padSize))
+  | blockSize >= 1 || blockSize <= 256 = BS.append s (BS.replicate padSize (chr padSize))
   | otherwise = error ("padPKCS7: invalid block size " ++ show blockSize)
   where
     padSize = blockSize - (BS.length s `mod` blockSize)
