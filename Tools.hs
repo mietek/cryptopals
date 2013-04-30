@@ -1,7 +1,8 @@
 module Tools where
 
+import Control.Arrow (second)
 import Data.Function (on)
-import Data.List (sortBy)
+import Data.List (mapAccumL, sortBy)
 
 
 isHexNumber :: (Num a, Ord a) => a -> Bool
@@ -25,6 +26,11 @@ concatMapInto :: ([a] -> [a]) -> Int -> [a] -> [a]
 concatMapInto f n xs
   | n >= 1 = concatMap f (splitInto n xs)
   | otherwise = error ("concatMapInto: invalid n " ++ show n)
+
+concatMapAccumLInto :: (a -> [b] -> (a, [b])) -> a -> Int -> [b] -> (a, [b])
+concatMapAccumLInto f a n xs
+  | n >= 1 = second concat (mapAccumL f a (splitInto n xs))
+  | otherwise = error ("concatMapAccumLInto: invalid n " ++ show n)
 
 
 average :: Fractional a => [a] -> a

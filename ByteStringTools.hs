@@ -1,10 +1,11 @@
 module ByteStringTools where
 
+import Control.Arrow (second)
 import qualified Data.ByteString.Char8 as BS
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import Data.Char (chr)
-import Data.List (tails)
+import Data.List (mapAccumL, tails)
 import Data.Maybe (catMaybes, listToMaybe)
 
 import CharTools (fromB64Quad, fromHexPair, hammingDistanceChar, isLetter, isPrint, toB64Quad, toHexPair, xorChar)
@@ -26,6 +27,13 @@ concatMapInto :: ([Char] -> [Char]) -> Int -> ByteString -> ByteString
 concatMapInto f n s
   | n >= 1 = BS.concat (map (BS.pack . f . BS.unpack) (splitInto n s))
   | otherwise = error ("concatMapInto: invalid n " ++ show n)
+
+concatMapAccumLInto :: (a -> [Char] -> (a, [Char])) -> a -> Int -> ByteString -> (a, ByteString)
+concatMapAccumLInto f a n s
+  | n >= 1 = second BS.concat (mapAccumL f' a (splitInto n s))
+  | otherwise = error ("concatMapAccumLInto: invalid n " ++ show n)
+  where
+    f' a' s' = second BS.pack (f a' (BS.unpack s'))
 
 
 toHex :: ByteString -> ByteString
