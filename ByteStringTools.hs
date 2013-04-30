@@ -76,8 +76,8 @@ crack1Xor' s = orderDescendingOn (scorePhrase . fst) results
         BS.all isPrint text]
 
 
-crackNXor :: ByteString -> Int -> Maybe (ByteString, ByteString)
-crackNXor s keySize
+crackNXor :: Int -> ByteString -> Maybe (ByteString, ByteString)
+crackNXor keySize s
   | keySize >= 1 = do
       partials <- sequence (map crack1Xor (BS.transpose blocks))
       let key = BS.concat (map snd partials)
@@ -92,7 +92,7 @@ crackXor :: ByteString -> Maybe (ByteString, ByteString)
 crackXor s = listToMaybe (crackXor' s)
 
 crackXor' :: ByteString -> [(ByteString, ByteString)]
-crackXor' s = catMaybes (map (crackNXor s) keySizes)
+crackXor' s = catMaybes (map (flip crackNXor s) keySizes)
   where
     maxKeySize = min 40 (BS.length s)
     keySizes = orderDescendingOn scoreKeySize [1 .. maxKeySize]
@@ -109,8 +109,8 @@ detectECB blockSize s = or (map headInTail (tails (splitInto blockSize s)))
     headInTail (block : blocks) = block `elem` blocks
 
 
-padPKCS7 :: ByteString -> Int -> ByteString
-padPKCS7 s blockSize
+padPKCS7 :: Int -> ByteString -> ByteString
+padPKCS7 blockSize s
   | blockSize >= 1 || blockSize <= 256 = BS.append s (BS.replicate padSize (chr padSize))
   | otherwise = error ("padPKCS7: invalid block size " ++ show blockSize)
   where
