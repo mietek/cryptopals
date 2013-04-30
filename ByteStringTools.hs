@@ -23,31 +23,33 @@ splitInto n s0
         where
           (s1, s2) = BS.splitAt n s
 
-concatMapInto :: ([Char] -> [Char]) -> Int -> ByteString -> ByteString
+concatMapInto :: (ByteString -> ByteString) -> Int -> ByteString -> ByteString
 concatMapInto f n s
-  | n >= 1 = BS.concat (map (BS.pack . f . BS.unpack) (splitInto n s))
+  | n >= 1 = BS.concat (map f (splitInto n s))
   | otherwise = error ("concatMapInto: invalid n " ++ show n)
 
-concatMapAccumLInto :: (a -> [Char] -> (a, [Char])) -> a -> Int -> ByteString -> (a, ByteString)
+concatMapAccumLInto :: (a -> ByteString -> (a, ByteString)) -> a -> Int -> ByteString -> (a, ByteString)
 concatMapAccumLInto f a n s
-  | n >= 1 = second BS.concat (mapAccumL f' a (splitInto n s))
+  | n >= 1 = second BS.concat (mapAccumL f a (splitInto n s))
   | otherwise = error ("concatMapAccumLInto: invalid n " ++ show n)
-  where
-    f' a' s' = second BS.pack (f a' (BS.unpack s'))
+
+
+viaBS :: ([Char] -> [Char]) -> ByteString -> ByteString
+viaBS f = BS.pack . f . BS.unpack
 
 
 toHex :: ByteString -> ByteString
-toHex s = concatMapInto toHexPair 1 s
+toHex s = concatMapInto (viaBS toHexPair) 1 s
 
 fromHex :: ByteString -> ByteString
-fromHex s = concatMapInto fromHexPair 2 s
+fromHex s = concatMapInto (viaBS fromHexPair) 2 s
 
 
 toB64 :: ByteString -> ByteString
-toB64 s = concatMapInto toB64Quad 3 s
+toB64 s = concatMapInto (viaBS toB64Quad) 3 s
 
 fromB64 :: ByteString -> ByteString
-fromB64 s = concatMapInto fromB64Quad 4 s
+fromB64 s = concatMapInto (viaBS fromB64Quad) 4 s
 
 
 xor :: ByteString -> ByteString -> ByteString
