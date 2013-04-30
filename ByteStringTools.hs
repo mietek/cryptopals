@@ -88,13 +88,12 @@ crackNXor keySize s
     blocks = splitInto keySize s
 
 
-crackXor :: ByteString -> Maybe (ByteString, ByteString)
-crackXor s = listToMaybe (crackXor' s)
+crackXor :: Int -> ByteString -> Maybe (ByteString, ByteString)
+crackXor maxKeySize s = listToMaybe (crackXor' maxKeySize s)
 
-crackXor' :: ByteString -> [(ByteString, ByteString)]
-crackXor' s = catMaybes (map (flip crackNXor s) keySizes)
+crackXor' :: Int -> ByteString -> [(ByteString, ByteString)]
+crackXor' maxKeySize s = catMaybes (map (flip crackNXor s) keySizes)
   where
-    maxKeySize = min 40 (BS.length s)
     keySizes = orderDescendingOn scoreKeySize [1 .. maxKeySize]
     scoreKeySize keySize =
         case splitInto keySize s of

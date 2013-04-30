@@ -52,7 +52,7 @@ case_6 :: Assertion
 case_6 = do
     s <- fromB64 . BS.concat . BS.lines <$> BS.readFile "case_6.txt"
     result <- BS.readFile "result_6.txt"
-    fromJust (crackXor s) @?= (result, resultKey)
+    fromJust (crackXor 40 s) @?= (result, resultKey)
   where
     resultKey = "Terminator X: Bring the noise"
 
